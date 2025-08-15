@@ -3,6 +3,16 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import s from "./display.module.css";
 
+function makeRng(seed: number) {
+    let t = seed >>> 0;
+    return () => {
+        t += 0x6D2B79F5;
+        let r = Math.imul(t ^ (t >>> 15), 1 | t);
+        r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+        return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
 type FearMsg = { value: number; max?: number };
 
 function useFear() {
@@ -43,27 +53,28 @@ function useFear() {
     return { levelPct: Math.round(ratio * 100), ratio, value, max };
 }
 
-// Component for dynamic particles
 function Particles() {
+    // fixed seed -> identical SSR/CSR
+    const rng = useMemo(() => makeRng(1337), []);
     const particles = useMemo(() => {
         return Array.from({ length: 20 }, (_, i) => ({
             id: i,
-            left: Math.random() * 100,
-            delay: Math.random() * 10,
-            duration: 10 + Math.random() * 10
+            left: rng() * 100,
+            delay: rng() * 10,
+            duration: 10 + rng() * 10,
         }));
-    }, []);
+    }, [rng]);
 
     return (
         <div className={s.particles}>
-            {particles.map(p => (
+            {particles.map((p) => (
                 <div
                     key={p.id}
                     className={s.particle}
                     style={{
                         left: `${p.left}%`,
                         animationDelay: `${p.delay}s`,
-                        animationDuration: `${p.duration}s`
+                        animationDuration: `${p.duration}s`,
                     }}
                 />
             ))}
@@ -71,23 +82,28 @@ function Particles() {
     );
 }
 
+
 // Component for dynamic bubbles
 function Bubbles({ intensity }: { intensity: number }) {
+    const count = Math.floor(3 + intensity * 7);
+    // bucket intensity to 0..100 so the seed jumps only when level meaningfully changes
+    const levelBucket = Math.round(intensity * 100);
+    const rng = useMemo(() => makeRng(4242 + levelBucket), [levelBucket]);
+
     const bubbles = useMemo(() => {
-        const count = Math.floor(3 + intensity * 7);
         return Array.from({ length: count }, (_, i) => ({
             id: i,
-            size: 4 + Math.random() * 8,
-            left: 20 + Math.random() * 60,
-            bottom: Math.random() * 30,
-            delay: Math.random() * 4,
-            duration: 4 + Math.random() * 4
+            size: 4 + rng() * 8,
+            left: 20 + rng() * 60,
+            bottom: rng() * 30,
+            delay: rng() * 4,
+            duration: 4 + rng() * 4,
         }));
-    }, [intensity]);
+    }, [count, rng]);
 
     return (
         <>
-            {bubbles.map(b => (
+            {bubbles.map((b) => (
                 <div
                     key={b.id}
                     className={s.bubble}
@@ -97,13 +113,14 @@ function Bubbles({ intensity }: { intensity: number }) {
                         left: `${b.left}%`,
                         bottom: `${b.bottom}%`,
                         animationDelay: `${b.delay}s`,
-                        animationDuration: `${b.duration}s`
+                        animationDuration: `${b.duration}s`,
                     }}
                 />
             ))}
         </>
     );
 }
+
 
 export default function DisplayPage() {
     const { levelPct, ratio, value, max } = useFear();
