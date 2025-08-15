@@ -34,14 +34,111 @@
   animation: pulseBackground calc(4s - var(--intensity, 0) * 1.5s) ease-in-out infinite;
 }
 
+/* Corruption veins that spread with fear */
+.corruptionVeins {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: calc(var(--intensity, 0) * 0.7);
+}
+
+.vein {
+  position: absolute;
+  background: linear-gradient(to bottom, transparent, rgba(147, 51, 234, 0.3), transparent);
+  filter: blur(2px);
+  animation: crawl 15s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.vein1 {
+  width: 3px;
+  height: 200px;
+  top: 0;
+  left: 20%;
+  animation-delay: 0s;
+  transform: rotate(15deg);
+}
+
+.vein2 {
+  width: 2px;
+  height: 250px;
+  top: 0;
+  right: 25%;
+  animation-delay: 3s;
+  transform: rotate(-20deg);
+}
+
+.vein3 {
+  width: 4px;
+  height: 180px;
+  bottom: 0;
+  left: 40%;
+  animation-delay: 6s;
+  transform: rotate(45deg) scaleY(-1);
+}
+
+/* Floating particles */
+.particles {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(147, 51, 234, 0.6);
+  border-radius: 50%;
+  animation: float 10s ease-in-out infinite;
+  opacity: calc(0.3 + var(--intensity, 0) * 0.7);
+}
+
 /* Center stage */
 .stage {
   display: grid;
   place-items: center;
-  gap: 32px;
+  gap: 48px;
   padding: 24px;
   position: relative;
-  z-index: 1;
+  z-index: 10;
+}
+
+/* Fear level text */
+.fearLabel {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(168, 85, 247, 0.6);
+  margin-bottom: -24px;
+  transition: all 700ms ease;
+}
+
+.fearLabel.low { 
+  color: rgba(168, 85, 247, 0.4); 
+}
+
+.fearLabel.medium { 
+  color: rgba(196, 122, 255, 0.7); 
+}
+
+.fearLabel.high { 
+  color: rgba(255, 122, 122, 0.9); 
+  animation: flicker 2s ease-in-out infinite;
+}
+
+.fearLabel.critical { 
+  color: #ff4444; 
+  animation: flicker 0.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(255, 68, 68, 0.5));
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* Enhanced sphere container */
@@ -50,6 +147,91 @@
   position: relative;
   width: var(--size);
   height: var(--size);
+  transition: transform 700ms ease;
+}
+
+.sphereContainer.shaking {
+  animation: shake calc(2s - var(--intensity, 0) * 1s) ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(calc(-2px * var(--intensity, 0))); }
+  75% { transform: translateX(calc(2px * var(--intensity, 0))); }
+}
+
+/* Cracks that appear at high fear */
+.cracks {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 700ms ease;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px rgba(255, 68, 68, 0.5));
+  z-index: 15;
+}
+
+.cracks.visible {
+  opacity: calc((var(--intensity, 0) - 0.6) * 2.5);
+}
+
+.crack {
+  position: absolute;
+  background: linear-gradient(to bottom, transparent, rgba(255, 68, 68, 0.3), transparent);
+  transform-origin: center;
+}
+
+.crack1 {
+  width: 2px;
+  height: 40%;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%) rotate(15deg);
+}
+
+.crack2 {
+  width: 1px;
+  height: 30%;
+  top: 35%;
+  left: 30%;
+  transform: rotate(-45deg);
+}
+
+.crack3 {
+  width: 2px;
+  height: 35%;
+  bottom: 15%;
+  right: 25%;
+  transform: rotate(70deg);
+}
+
+/* Heartbeat effect at high fear */
+.heartbeat {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 68, 68, 0);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 700ms ease;
+  z-index: 14;
+}
+
+.heartbeat.active {
+  opacity: 1;
+  animation: heartbeat calc(1.5s - var(--intensity, 0) * 0.7s) ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+    border-color: rgba(255, 68, 68, 0);
+  }
+  50% {
+    transform: scale(1.05);
+    border-color: rgba(255, 68, 68, 0.3);
+  }
 }
 
 /* Outer glow */
@@ -58,10 +240,11 @@
   inset: 0;
   border-radius: 50%;
   background: #7c3aed;
-  opacity: 0.2;
+  opacity: calc(0.2 + var(--intensity, 0) * 0.3);
   filter: blur(48px);
   transform: scale(1.1);
-  animation: pulse 4s ease-in-out infinite;
+  animation: pulse calc(4s - var(--intensity, 0) * 2s) ease-in-out infinite;
+  transition: opacity 700ms ease;
 }
 
 /* Enhanced sphere vessel */
@@ -71,7 +254,10 @@
   height: 100%;
   border-radius: 50%;
   overflow: hidden;
-  background: radial-gradient(120% 110% at 40% 30%, rgba(147, 51, 234, 0.4) 0%, rgba(88, 28, 135, 0.6) 52%, rgba(0, 0, 0, 0.9) 100%);
+  background: radial-gradient(120% 110% at 40% 30%, 
+    rgba(147, 51, 234, 0.4) 0%, 
+    rgba(88, 28, 135, 0.6) 52%, 
+    rgba(0, 0, 0, 0.9) 100%);
   isolation: isolate;
 }
 
@@ -104,6 +290,45 @@
   will-change: height;
 }
 
+/* At high fear, liquid becomes more red */
+.fill.highFear {
+  background: linear-gradient(
+    to top,
+    rgba(135, 28, 28, 0.95) 0%,
+    rgba(237, 58, 58, 0.85) 30%,
+    rgba(247, 85, 85, 0.75) 60%,
+    rgba(255, 122, 122, 0.65) 100%
+  );
+}
+
+/* Liquid surface turbulence */
+.surfaceTurbulence {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  overflow: hidden;
+}
+
+.wave {
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.1), 
+    transparent, 
+    rgba(255, 255, 255, 0.05), 
+    transparent);
+  animation: wave calc(3s - var(--intensity, 0) * 1.5s) linear infinite;
+}
+
+@keyframes wave {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
 /* Liquid surface shimmer */
 .shimmer {
   position: absolute;
@@ -122,41 +347,12 @@
   overflow: hidden;
 }
 
-/* Individual bubbles */
-.bubble1,
-.bubble2,
-.bubble3 {
+/* Dynamic bubble class */
+.bubble {
   position: absolute;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 70%, transparent 100%);
   border-radius: 50%;
   animation: bubbleFloat 4s ease-in-out infinite;
-}
-
-.bubble1 {
-  width: 8px;
-  height: 8px;
-  left: 20%;
-  bottom: 10%;
-  animation-delay: 0s;
-  animation-duration: 6s;
-}
-
-.bubble2 {
-  width: 12px;
-  height: 12px;
-  left: 60%;
-  bottom: 20%;
-  animation-delay: 2s;
-  animation-duration: 8s;
-}
-
-.bubble3 {
-  width: 6px;
-  height: 6px;
-  left: 80%;
-  bottom: 5%;
-  animation-delay: 4s;
-  animation-duration: 5s;
 }
 
 /* Glass reflection - top highlight */
@@ -245,43 +441,62 @@
 /* Progress bar container */
 .progressContainer {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 300px;
 }
 
 .progressBar {
-  width: 128px;
-  height: 4px;
-  background: rgba(88, 28, 135, 0.5);
-  border-radius: 2px;
+  width: 100%;
+  height: 6px;
+  background: rgba(88, 28, 135, 0.3);
+  border-radius: 3px;
   overflow: hidden;
+  position: relative;
 }
 
 .progressFill {
   height: 100%;
   background: linear-gradient(to right, #7c3aed, #a855f7);
   transition: width 700ms cubic-bezier(.2,.8,.2,1);
-  border-radius: 2px;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 /* Animations */
 @keyframes pulse {
   0%, 100% {
-    opacity: 0.2;
+    opacity: calc(0.2 + var(--intensity, 0) * 0.3);
     transform: scale(1.1);
   }
   50% {
-    opacity: 0.3;
-    transform: scale(1.15);
+    opacity: calc(0.3 + var(--intensity, 0) * 0.4);
+    transform: scale(calc(1.15 + var(--intensity, 0) * 0.1));
   }
 }
 
 @keyframes pulseBackground {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: calc(0.8 + var(--intensity, 0) * 0.2);
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: calc(0.8 + var(--intensity, 0) * 0.2); }
 }
 
 @keyframes shimmer {
@@ -307,10 +522,33 @@
 }
 
 @keyframes rotate {
-  from {
-    transform: rotate(0deg);
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes crawl {
+  0%, 100% {
+    transform: scaleY(0.7) rotate(var(--rotation, 15deg));
+    opacity: 0.3;
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    transform: scaleY(1.2) rotate(var(--rotation, 15deg));
+    opacity: 0.7;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(100vh) translateX(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: calc(0.3 + var(--intensity, 0) * 0.7);
+  }
+  80% {
+    opacity: calc(0.3 + var(--intensity, 0) * 0.7);
+  }
+  100% {
+    transform: translateY(-100vh) translateX(50px);
   }
 }

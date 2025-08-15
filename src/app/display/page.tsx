@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import s from "./display.module.css";
 
 type FearMsg = { value: number; max?: number };
@@ -40,11 +40,87 @@ function useFear() {
         return Math.max(0, Math.min(1, r));
     }, [value, max]);
 
-    return { levelPct: Math.round(ratio * 100), ratio };
+    return { levelPct: Math.round(ratio * 100), ratio, value, max };
+}
+
+// Component for dynamic particles
+function Particles() {
+    const particles = useMemo(() => {
+        return Array.from({ length: 20 }, (_, i) => ({
+            id: i,
+            left: Math.random() * 100,
+            delay: Math.random() * 10,
+            duration: 10 + Math.random() * 10
+        }));
+    }, []);
+
+    return (
+        <div className={s.particles}>
+            {particles.map(p => (
+                <div
+                    key={p.id}
+                    className={s.particle}
+                    style={{
+                        left: `${p.left}%`,
+                        animationDelay: `${p.delay}s`,
+                        animationDuration: `${p.duration}s`
+                    }}
+                />
+            ))}
+        </div>
+    );
+}
+
+// Component for dynamic bubbles
+function Bubbles({ intensity }: { intensity: number }) {
+    const bubbles = useMemo(() => {
+        const count = Math.floor(3 + intensity * 7);
+        return Array.from({ length: count }, (_, i) => ({
+            id: i,
+            size: 4 + Math.random() * 8,
+            left: 20 + Math.random() * 60,
+            bottom: Math.random() * 30,
+            delay: Math.random() * 4,
+            duration: 4 + Math.random() * 4
+        }));
+    }, [intensity]);
+
+    return (
+        <>
+            {bubbles.map(b => (
+                <div
+                    key={b.id}
+                    className={s.bubble}
+                    style={{
+                        width: `${b.size}px`,
+                        height: `${b.size}px`,
+                        left: `${b.left}%`,
+                        bottom: `${b.bottom}%`,
+                        animationDelay: `${b.delay}s`,
+                        animationDuration: `${b.duration}s`
+                    }}
+                />
+            ))}
+        </>
+    );
 }
 
 export default function DisplayPage() {
-    const { levelPct, ratio } = useFear();
+    const { levelPct, ratio, value, max } = useFear();
+    const [fearLabel, setFearLabel] = useState({ text: "FEAR LEVEL", className: "low" });
+
+    // Update fear label based on ratio
+    useEffect(() => {
+        if (ratio < 0.3) {
+            setFearLabel({ text: "FEAR", className: "low" });
+        } else if (ratio < 0.6) {
+            setFearLabel({ text: "FEAR", className: "medium" });
+        } else if (ratio < 0.85) {
+            setFearLabel({ text: "FEAR", className: "high" });
+        } else {
+            setFearLabel({ text: "FEAR", className: "critical" });
+        }
+    }, [ratio]);
 
     return (
         <main
@@ -55,17 +131,41 @@ export default function DisplayPage() {
                 } as React.CSSProperties
             }
         >
+            {/* Corruption veins */}
+            <div className={s.corruptionVeins}>
+                <div className={`${s.vein} ${s.vein1}`} />
+                <div className={`${s.vein} ${s.vein2}`} />
+                <div className={`${s.vein} ${s.vein3}`} />
+            </div>
+
+            {/* Floating particles */}
+            <Particles />
+
             <div className={s.stage}>
-                <div className={s.sphereContainer}>
+                {/* Fear label */}
+                <div className={`${s.fearLabel} ${s[fearLabel.className]}`}>
+                    {fearLabel.text}
+                </div>
+
+                <div className={`${s.sphereContainer} ${ratio > 0.5 ? s.shaking : ''}`}>
+                    {/* Heartbeat effect */}
+                    <div className={`${s.heartbeat} ${ratio > 0.7 ? s.active : ''}`} />
+
                     {/* Outer glow */}
                     <div className={s.outerGlow} />
+
+                    {/* Cracks */}
+                    <div className={`${s.cracks} ${ratio > 0.6 ? s.visible : ''}`}>
+                        <div className={`${s.crack} ${s.crack1}`} />
+                        <div className={`${s.crack} ${s.crack2}`} />
+                        <div className={`${s.crack} ${s.crack3}`} />
+                    </div>
 
                     {/* Main enhanced sphere */}
                     <div
                         className={s.sphere}
                         style={
                             {
-                                // % for fill height, decimal for animation/glitch intensity
                                 ["--level" as any]: `${levelPct}%`,
                                 ["--t" as any]: ratio,
                             } as React.CSSProperties
@@ -76,15 +176,18 @@ export default function DisplayPage() {
                         <div className={s.innerShadow} />
 
                         {/* Liquid fill with enhanced effects */}
-                        <div className={s.fill}>
+                        <div className={`${s.fill} ${ratio > 0.75 ? s.highFear : ''}`}>
+                            {/* Surface turbulence */}
+                            <div className={s.surfaceTurbulence}>
+                                <div className={s.wave} />
+                            </div>
+
                             {/* Liquid surface shimmer */}
                             <div className={s.shimmer} />
 
-                            {/* Bubbles */}
+                            {/* Dynamic bubbles */}
                             <div className={s.bubbles}>
-                                <div className={s.bubble1} />
-                                <div className={s.bubble2} />
-                                <div className={s.bubble3} />
+                                <Bubbles intensity={ratio} />
                             </div>
                         </div>
 
