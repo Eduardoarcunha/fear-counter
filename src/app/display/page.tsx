@@ -148,6 +148,19 @@ export default function DisplayPage() {
                 } as React.CSSProperties
             }
         >
+            <button
+                className={s.fsBtn}
+                aria-label="Fullscreen"
+                onClick={() => {
+                    const el: any = document.documentElement;
+                    (el.requestFullscreen ||
+                        el.webkitRequestFullscreen ||
+                        el.msRequestFullscreen)?.call(el);
+                }}
+            >
+                ⤢
+            </button>
+
             {/* Corruption veins */}
             <div className={s.corruptionVeins}>
                 <div className={`${s.vein} ${s.vein1}`} />
