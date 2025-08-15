@@ -211,16 +211,6 @@ export default function DisplayPage() {
                     {/* Base shadow */}
                     <div className={s.baseShadow} />
                 </div>
-
-                {/* Progress Bar */}
-                <div className={s.progressContainer}>
-                    <div className={s.progressBar}>
-                        <div
-                            className={s.progressFill}
-                            style={{ width: `${levelPct}%` }}
-                        />
-                    </div>
-                </div>
             </div>
         </main>
     );
