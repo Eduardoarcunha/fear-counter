@@ -1,0 +1,316 @@
+/* Dark background with dynamic intensity */
+.wrap {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  position: relative;
+  background: #04040a;
+  overflow: hidden;
+}
+
+/* Base background layer */
+.wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(900px 600px at 70% 10%, #0c0a13 0%, #07060b 60%, #04040a 100%);
+  z-index: 0;
+}
+
+/* Dynamic purple intensity layer */
+.wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    calc(900px + var(--intensity, 0) * 600px) calc(600px + var(--intensity, 0) * 400px) at 70% 10%, 
+    rgba(147, 51, 234, calc(0.05 + var(--intensity, 0) * 0.25)) 0%, 
+    rgba(124, 58, 237, calc(0.02 + var(--intensity, 0) * 0.15)) 40%, 
+    rgba(88, 28, 135, calc(0.01 + var(--intensity, 0) * 0.1)) 70%, 
+    transparent 100%
+  );
+  z-index: 0;
+  transition: all 700ms cubic-bezier(.2,.8,.2,1);
+  animation: pulseBackground calc(4s - var(--intensity, 0) * 1.5s) ease-in-out infinite;
+}
+
+/* Center stage */
+.stage {
+  display: grid;
+  place-items: center;
+  gap: 32px;
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Enhanced sphere container */
+.sphereContainer {
+  --size: min(62vmin, 560px);
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+}
+
+/* Outer glow */
+.outerGlow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #7c3aed;
+  opacity: 0.2;
+  filter: blur(48px);
+  transform: scale(1.1);
+  animation: pulse 4s ease-in-out infinite;
+}
+
+/* Enhanced sphere vessel */
+.sphere {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: radial-gradient(120% 110% at 40% 30%, rgba(147, 51, 234, 0.4) 0%, rgba(88, 28, 135, 0.6) 52%, rgba(0, 0, 0, 0.9) 100%);
+  isolation: isolate;
+}
+
+/* Inner shadow for depth */
+.innerShadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: 
+    inset 0 0 60px rgba(0, 0, 0, 0.8),
+    inset 0 0 120px rgba(0, 0, 0, 0.6),
+    0 0 80px rgba(88, 28, 135, 0.3);
+}
+
+/* Enhanced liquid fill */
+.fill {
+  position: absolute;
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  height: var(--level, 0%);
+  background: linear-gradient(
+    to top,
+    rgba(88, 28, 135, 0.95) 0%,
+    rgba(124, 58, 237, 0.85) 30%,
+    rgba(168, 85, 247, 0.75) 60%,
+    rgba(196, 122, 255, 0.65) 100%
+  );
+  transition: height 700ms cubic-bezier(.2,.8,.2,1);
+  will-change: height;
+}
+
+/* Liquid surface shimmer */
+.shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Bubbles container */
+.bubbles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Individual bubbles */
+.bubble1,
+.bubble2,
+.bubble3 {
+  position: absolute;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 70%, transparent 100%);
+  border-radius: 50%;
+  animation: bubbleFloat 4s ease-in-out infinite;
+}
+
+.bubble1 {
+  width: 8px;
+  height: 8px;
+  left: 20%;
+  bottom: 10%;
+  animation-delay: 0s;
+  animation-duration: 6s;
+}
+
+.bubble2 {
+  width: 12px;
+  height: 12px;
+  left: 60%;
+  bottom: 20%;
+  animation-delay: 2s;
+  animation-duration: 8s;
+}
+
+.bubble3 {
+  width: 6px;
+  height: 6px;
+  left: 80%;
+  bottom: 5%;
+  animation-delay: 4s;
+  animation-duration: 5s;
+}
+
+/* Glass reflection - top highlight */
+.glassTop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(125% 78% at 40% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 56%);
+  transform: translateY(-32px) scale(0.75);
+}
+
+/* Side highlights */
+.sideHighlight1 {
+  position: absolute;
+  top: 25%;
+  left: 16px;
+  width: 24px;
+  height: 128px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+  border-radius: 50%;
+  filter: blur(2px);
+  transform: rotate(-12deg);
+}
+
+.sideHighlight2 {
+  position: absolute;
+  top: 33%;
+  right: 32px;
+  width: 16px;
+  height: 96px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.08), transparent);
+  border-radius: 50%;
+  filter: blur(2px);
+  transform: rotate(12deg);
+}
+
+/* Rim highlights */
+.rimHighlight1 {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.05);
+}
+
+.rimHighlight2 {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 1px solid rgba(196, 122, 255, 0.1);
+}
+
+/* Caustic light patterns */
+.caustics {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(168, 85, 247, 0.05), transparent, rgba(124, 58, 237, 0.05), transparent);
+  animation: rotate 20s linear infinite;
+}
+
+/* Edge vignette (dark only) */
+.edgeVignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(110% 110% at 50% 50%, rgba(0,0,0,0.18) 70%, rgba(0,0,0,0.45) 100%);
+  mix-blend-mode: multiply;
+}
+
+/* Base shadow */
+.baseShadow {
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 256px;
+  height: 32px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  filter: blur(24px);
+}
+
+/* Progress bar container */
+.progressContainer {
+  display: flex;
+  justify-content: center;
+}
+
+.progressBar {
+  width: 128px;
+  height: 4px;
+  background: rgba(88, 28, 135, 0.5);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(to right, #7c3aed, #a855f7);
+  transition: width 700ms cubic-bezier(.2,.8,.2,1);
+  border-radius: 2px;
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1.1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes pulseBackground {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: calc(0.8 + var(--intensity, 0) * 0.2);
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% { 
+    transform: translateX(-100%); 
+    opacity: 0; 
+  }
+  50% { 
+    transform: translateX(100%); 
+    opacity: 1; 
+  }
+}
+
+@keyframes bubbleFloat {
+  0%, 100% { 
+    transform: translateY(0) scale(1); 
+    opacity: 0.7; 
+  }
+  50% { 
+    transform: translateY(-20px) scale(1.1); 
+    opacity: 1; 
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
